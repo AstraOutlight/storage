@@ -1,0 +1,11 @@
+local player = game:GetService("Players").LocalPlayer
+local tweenService = game:GetService("TweenService")
+
+local function enablePrioritySpeaker()
+    local AudioFocusService = game:GetService("AudioFocusService")
+    AudioFocusService:RegisterContextIdFromLua(100)
+    task.wait()
+    AudioFocusService:RequestFocus(100, 9999999)
+end
+
+enablePrioritySpeaker()
