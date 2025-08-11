@@ -4,7 +4,7 @@ local VoiceChatService = game:GetService("VoiceChatService")
 local triggerKey = Enum.KeyCode.F
 
 local function joinVoice()
-	VoiceChatService:JoinVoice()
+game:GetService("VoiceChatService"):joinVoice()
 end
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
