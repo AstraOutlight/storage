@@ -1,0 +1,299 @@
+local lp = game:GetService("Players").LocalPlayer
+
+local function gplr(String)
+	local Found = {}
+	local strl = String:lower()
+	for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+		local uname = v.Name:lower()
+		local dname = v.DisplayName:lower()
+		if strl == "all" then
+			table.insert(Found, v)
+		elseif strl == "others" and v ~= lp then
+			table.insert(Found, v)
+		elseif strl == "me" and v == lp then
+			table.insert(Found, v)
+		elseif uname:sub(1, #strl) == strl or dname:sub(1, #strl) == strl then
+			table.insert(Found, v)
+		end
+	end
+	return Found
+end
+
+
+local TweenService = game:GetService("TweenService")
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "KillGui"
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = game:GetService("CoreGui")
+
+local main = Instance.new("Frame")
+main.Name = "Main"
+main.Parent = gui
+main.AnchorPoint = Vector2.new(0.5, 0.5)
+main.Position = UDim2.new(0.5, 0, 0.5, 0)
+main.Size = UDim2.new(0, 300, 0, 250)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.BorderSizePixel = 0
+main.Visible = false
+
+local corner = Instance.new("UICorner", main)
+corner.CornerRadius = UDim.new(0, 16)
+
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local dragging = false
+local dragInput, dragStart, startPos
+
+main.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = main.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+main.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+
+		TweenService:Create(main, TweenInfo.new(0.05, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			Position = newPos
+		}):Play()
+	end
+end)
+
+
+local title = Instance.new("TextLabel")
+title.Name = "Title"
+title.Parent = main
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.Text = "Kill Player GUI"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.TextColor3 = Color3.new(1, 1, 1)
+
+local titleRGB = title:Clone()
+titleRGB.Parent = nil
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Name = "CloseButton"
+closeBtn.Parent = main
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+closeBtn.Text = "X"
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 18
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+
+local closeCorner = Instance.new("UICorner", closeBtn)
+closeCorner.CornerRadius = UDim.new(0, 6)
+
+
+local separator = Instance.new("Frame")
+separator.Parent = main
+separator.Position = UDim2.new(0.1, 0, 0.18, 0)
+separator.Size = UDim2.new(0.8, 0, 0, 2)
+separator.BorderSizePixel = 0
+
+local sepCorner = Instance.new("UICorner", separator)
+sepCorner.CornerRadius = UDim.new(0, 5)
+
+local box = Instance.new("TextBox")
+box.Name = "UsernameBox"
+box.Parent = main
+box.Position = UDim2.new(0.1, 0, 0.25, 0)
+box.Size = UDim2.new(0.8, 0, 0, 40)
+box.PlaceholderText = "Enter username..."
+box.Text = ""
+box.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+box.TextColor3 = Color3.new(1, 1, 1)
+box.Font = Enum.Font.Gotham
+box.TextScaled = true
+
+local boxCorner = Instance.new("UICorner", box)
+boxCorner.CornerRadius = UDim.new(0, 10)
+
+local killBtn = Instance.new("TextButton")
+killBtn.Name = "KillButton"
+killBtn.Parent = main
+killBtn.Position = UDim2.new(0.25, 0, 0.55, 0)
+killBtn.Size = UDim2.new(0.5, 0, 0, 40)
+killBtn.Text = "KILL"
+killBtn.Font = Enum.Font.GothamBold
+killBtn.TextScaled = true
+killBtn.TextColor3 = Color3.new(0, 0, 0)
+killBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+
+local killCorner = Instance.new("UICorner", killBtn)
+killCorner.CornerRadius = UDim.new(0, 10)
+
+local credit = Instance.new("TextLabel")
+credit.Parent = main
+credit.Position = UDim2.new(0, 0, 1, -35)
+credit.Size = UDim2.new(1, 0, 0, 30)
+credit.Text = "Made by Xyrevex"
+credit.TextColor3 = Color3.new(1, 1, 1)
+credit.Font = Enum.Font.Gotham
+credit.BackgroundTransparency = 1
+credit.TextScaled = true
+
+-- RGB Tween Coroutine Function
+local function RGBTweenLoop(instance, prop)
+    coroutine.wrap(function()
+        local colors = {
+            Color3.fromRGB(255, 0, 0),   -- Red
+            Color3.fromRGB(255, 127, 0), -- Orange
+            Color3.fromRGB(255, 255, 0), -- Yellow
+            Color3.fromRGB(0, 255, 0),   -- Green
+            Color3.fromRGB(0, 255, 255), -- Cyan
+            Color3.fromRGB(0, 0, 255),   -- Blue
+            Color3.fromRGB(139, 0, 255), -- Purple
+        }
+        local tweenTime = 0.3
+        local n = #colors
+
+        instance[prop] = colors[1]
+
+        while true do
+            for i = 1, n do
+                local nextIndex = (i % n) + 1
+                local goal = {[prop] = colors[nextIndex]}
+                local tween = TweenService:Create(instance, TweenInfo.new(tweenTime, Enum.EasingStyle.Linear), goal)
+                tween:Play()
+                tween.Completed:Wait()
+            end
+        end
+    end)()
+end
+
+
+RGBTweenLoop(title, "TextColor3")
+RGBTweenLoop(separator, "BackgroundColor3")
+RGBTweenLoop(credit, "TextColor3")
+RGBTweenLoop(killBtn, "BackgroundColor3")
+RGBTweenLoop(closeBtn, "BackgroundColor3")
+
+local function notif(msg)
+	game.StarterGui:SetCore("SendNotification", {
+		Title = "Killed",
+		Text = msg
+	})
+end
+
+killBtn.MouseButton1Click:Connect(function()
+	local Target = gplr(box.Text)
+	if not Target[1] then return end
+	local Player = Target[1]
+	local LocalPlayer = lp
+
+	if LocalPlayer.Character and LocalPlayer.Character.PrimaryPart then
+		local Character = LocalPlayer.Character
+		local prev = Character.PrimaryPart.CFrame
+
+		Character.Archivable = true
+		local Clone = Character:Clone()
+		LocalPlayer.Character = Clone
+		task.wait(0.5)
+		LocalPlayer.Character = Character
+		task.wait(0.2)
+
+		if Player.Character and Player.Character.PrimaryPart then
+			if Character:FindFirstChildOfClass("Humanoid") then
+				Character:FindFirstChildOfClass("Humanoid"):Destroy()
+			end
+
+			local newHum = Instance.new("Humanoid")
+			newHum.Parent = Character
+
+			local Tool = Character:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+			if Tool then
+				Tool.Parent = LocalPlayer.Backpack
+				Player.Character.PrimaryPart.Anchored = true
+
+				local hand = Character:FindFirstChild("RightHand") or Character:FindFirstChild("Right Arm")
+				if hand then
+					local offset = CFrame.new(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, -1, 0)
+					local gripCFrame = hand.CFrame * offset
+					Tool.Grip = gripCFrame:ToObjectSpace(Player.Character.PrimaryPart.CFrame):Inverse()
+					Tool.Parent = Character
+					workspace.CurrentCamera.CameraSubject = Tool:FindFirstChild("Handle") or Tool
+				end
+
+				repeat wait() until not Tool or Tool.Parent == workspace or Tool.Parent == Player.Character
+				Player.Character.PrimaryPart.Anchored = false
+				task.wait(0.1)
+				newHum.Health = 0
+				LocalPlayer.Character = nil
+
+				spawn(function()
+					LocalPlayer.CharacterAdded:Wait()
+					Player.Character.PrimaryPart.Anchored = false
+					if Player.Character:FindFirstChildOfClass("Humanoid").Health <= 15 then
+						notif("The requested user has been killed!")
+						repeat task.wait() until LocalPlayer.Character.PrimaryPart
+						task.wait(0.4)
+						LocalPlayer.Character:SetPrimaryPartCFrame(prev)
+					end
+				end)
+			end
+		end
+	end
+end)
+
+local toggleGui = Instance.new("ScreenGui", lp:WaitForChild("PlayerGui"))
+toggleGui.ResetOnSpawn = false
+
+local toggle = Instance.new("TextButton")
+toggle.Name = "Toggle"
+toggle.Parent = toggleGui
+toggle.Size = UDim2.new(0, 100, 0, 40)
+toggle.Position = UDim2.new(0, 10, 0.5, -20)
+toggle.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+toggle.Text = "Toggle GUI"
+toggle.Font = Enum.Font.GothamBold
+toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggle.TextSize = 14
+
+local toggleCorner = Instance.new("UICorner", toggle)
+toggleCorner.CornerRadius = UDim.new(0, 10)
+
+toggle.MouseButton1Click:Connect(function()
+	main.Visible = not main.Visible
+	if main.Visible then
+		main.BackgroundTransparency = 1
+		for i = 1, 0, -0.1 do
+			main.BackgroundTransparency = i
+			wait()
+		end
+	end
+end)
+
+closeBtn.MouseButton1Click:Connect(function()
+	for i = 0, 1, 0.1 do
+		main.BackgroundTransparency = i
+		task.wait()
+	end
+	main.Visible = false
+
+	gui:Destroy()
+	toggleGui:Destroy()
+end)
